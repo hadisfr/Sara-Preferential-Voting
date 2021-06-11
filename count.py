@@ -33,16 +33,26 @@ def get_votes(addr, valid_candidates):
     return list(votes)
 
 
-def write_counts(addr, votes_counted, total_voters):
+def write_counts(addr, votes_counted, total_voters, names):
     with open(addr, "w") as f:
-        print(",".join(["Candidate", "Votes", "Percentage of Original Voters"]), file=f)
+        print(",".join(["Candidate", "Votes", "Percentage of Original Voters", "Name"]), file=f)
         for itm in votes_counted:
             candidate, votes = itm
             percentage = votes * 100 / total_voters
-            print(",".join([candidate, str(votes), "%.3f" % percentage]), file=f)
+            print(",".join([candidate, str(votes), "%.3f" % percentage, names[candidate]]), file=f)
 
 
-def count(votes, quorum, total_voters):
+def get_names(addr):
+    with open(addr) as f:
+        names = dict()
+        for line in f:
+            s = line.split(",")
+            assert len(s) == 2
+            names[s[0]] = s[1].strip()
+    return names
+
+
+def count(votes, quorum, total_voters, names):
     def count_iter(votes):
         votes_counted = Counter(chain(*map(lambda vote: vote[:ITERATION_MAX_VOTE_COUNT], votes))).most_common()
         elected_candidates = list(map(lambda t: t[0], filter(lambda t: t[1] >= quorum, votes_counted)))
@@ -64,12 +74,13 @@ def count(votes, quorum, total_voters):
         itr += 1
         print("\nIteration %d" % itr)
         votes_counted, elected_candidates_count, min_candidates_count, votes = count_iter(votes)
-        write_counts(path.join(DST_PATH, "itr%d.csv" % itr), votes_counted, total_voters)
+        write_counts(path.join(DST_PATH, "itr%d.csv" % itr), votes_counted, total_voters, names)
 
 
 def main():
     valid_candidates = get_list("list.txt")
     print("%d valid candidates" % len(valid_candidates))
+    names = get_names("95code.csv")
 
     votes = get_votes("output.json", valid_candidates)
     total_voters = len(votes)
@@ -79,7 +90,7 @@ def main():
 
     print("\n")
 
-    count(votes, quorum, total_voters)
+    count(votes, quorum, total_voters, names)
 
 
 if __name__ == '__main__':

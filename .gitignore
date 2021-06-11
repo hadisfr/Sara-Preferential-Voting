@@ -1,6 +1,9 @@
 *.json
 list.txt
 votes.graph*
+*.csv
+*.xlsx
+*.ods
 
 
 ### Python ###
