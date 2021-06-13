@@ -4,7 +4,9 @@ import json
 from datetime import datetime
 from collections import Counter
 
-from matplotlib import pyplot as plt
+from matplotlib import rcParams, pyplot as plt
+
+rcParams["svg.fonttype"] = "none"
 
 
 BANNED_IPS = {
