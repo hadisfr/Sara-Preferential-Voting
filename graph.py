@@ -3,6 +3,9 @@
 import json
 from itertools import combinations
 
+BANNED_IPS = {
+}
+
 
 def get_list(addr):
     with open(addr) as f:
@@ -18,6 +21,7 @@ def get_votes(addr, valid_candidates):
         votes = json.load(f)
     print("read %d votes from source" % len(votes))
     votes = filter(lambda itm: "votes" in itm["body"], votes)
+    votes = filter(lambda itm: itm["ip"].split(":")[-1] not in BANNED_IPS, votes)
     votes = dict(map(lambda itm: (itm["body"]["voter_id"], itm["body"]["votes"]), votes))
     votes = votes.values()
     votes = filter_votes(votes, lambda candidate: candidate in valid_candidates)

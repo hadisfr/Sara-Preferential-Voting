@@ -7,6 +7,10 @@ from collections import Counter
 from matplotlib import pyplot as plt
 
 
+BANNED_IPS = {
+}
+
+
 def get_list(addr):
     with open(addr) as f:
         return set(map(str.strip, f))
@@ -21,6 +25,7 @@ def get_votes(addr, valid_candidates):
         votes = json.load(f)
     print("read %d votes from source" % len(votes))
     votes = filter(lambda itm: "votes" in itm["body"], votes)
+    votes = filter(lambda itm: itm["ip"].split(":")[-1] not in BANNED_IPS, votes)
     votes = map(lambda votes: datetime.fromtimestamp(int(votes["datetime"])/1000), votes)
     votes = map(lambda dt: datetime.strftime(dt, "%d %H"), votes)
     return list(votes)
